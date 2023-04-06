@@ -1,0 +1,34 @@
+# Binaries
+bin/
+obj/
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+
+# Visual Studio files
+.vscode/
+*.sln
+*.csproj.user
+*.userprefs
+
+# NuGet
+packages/
+
+# MSTest test Results
+[Tt]est[Rr]esult*/
+
+# Build results of an MSBuild build
+[Bb]uild/
+
+# StyleCop
+StyleCopReport.xml
+
+# Resharper
+_ReSharper*/
+
+# CodeLens/Run cmd
+*.VisualState.xml
+
+# Build and publish web app files
+*.PublishSettings
