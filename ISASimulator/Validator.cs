@@ -10,14 +10,14 @@ namespace ISASimulator
             {
                 string line = ISASimulator.GetCode()[i].Trim();
                 int index = line.IndexOf(' ');
-                if (index == -1 && Debug.Breakpoint.Equals(line.ToUpper())) // Breakpoint
+                if (index == -1 && Debug.Breakpoint.Equals(line.ToUpper()))
                     continue;
-                if (index == -1 && !ISASimulator.GetKeywords().Contains(line.ToUpper()) && !line.EndsWith(":")) // Invalid keyword
+                if (index == -1 && !ISASimulator.GetKeywords().Contains(line.ToUpper()) && !line.EndsWith(":"))
                 {
                     ISASimulator.GetErrorList().Add(line);
                     ISASimulator.SetValid(false);
                 }
-                else if (index == -1 && line.EndsWith(":")) // Label 
+                else if (index == -1 && line.EndsWith(":"))
                     ISASimulator.GetLabels()[line.Substring(0, line.Length - 1)] = i;
                 else
                 {
