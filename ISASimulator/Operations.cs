@@ -5,12 +5,9 @@ using System.Collections.Generic;
 
 namespace ISASimulator {
     public class Operations {
-        // Map of unary operators
         private static readonly Dictionary<string, Action<string>> UnaryOperations = new();
-        // Map of binary operators
         private static readonly Dictionary<string, Action<string, string>> BinaryOperations = new();
     
-        // Variables for the result of CMP instruction
         private static bool _equalResult, _lessResult;
 
         public static Dictionary<string, Action<string>> GetUnaryOperations()

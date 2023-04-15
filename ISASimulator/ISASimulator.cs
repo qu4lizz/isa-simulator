@@ -7,15 +7,11 @@ namespace ISASimulator
 {
     public class ISASimulator
     {
-        //Index for the interpretation of the code
         private static int interpretationIndex = 0;
 
-        //Registers
         private static readonly Dictionary<string, long?> registers = new();
-        //Memory addresses in address space
         private static readonly Dictionary<long, byte> addresses = new();
         private static readonly HashSet<string> keywords = new();
-        // Labels and their corresponding line number
         private static readonly Dictionary<string, int> labels = new();
         private static List<string> code;
         private static readonly List<string> errorList = new();
@@ -23,7 +19,6 @@ namespace ISASimulator
         private static bool isDebuggingMode = false;
         private static bool isValid = true;
 
-        //Instruction for switching to machine code execution
         public const string SwitchToMachineCodeExecution = "SWITCH";
 
         public static int GetInterpretationIndex()

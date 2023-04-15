@@ -71,7 +71,6 @@ namespace ISASimulator {
         {
             for (; ; ISASimulator.SetInterpretationIndex(ISASimulator.GetInterpretationIndex() + 1))
             {
-                //1 Fetch
                 if (!ISASimulator.GetAddresses().ContainsKey(ISASimulator.GetRegisters()["RIP"] ?? -1))
                 {
                     return;
@@ -79,10 +78,8 @@ namespace ISASimulator {
 
                 long address = ISASimulator.GetRegisters()["RIP"] ?? -1;
 
-                //2 Decode
                 string instruction = opCodes[ISASimulator.GetAddresses()[address++]];
 
-                //3 Fetch operands
                 StringBuilder sb = new StringBuilder();
 
                 if (!Debug.Breakpoint.Equals(instruction))
@@ -96,7 +93,6 @@ namespace ISASimulator {
                 ISASimulator.GetRegisters()["RIP"] = address + 1;
                 string operands = sb.ToString();
 
-                //4 Execute
                 if (Debug.Breakpoint.Equals(instruction))
                 {
                     ISASimulator.SetDebuggingMode(true);
