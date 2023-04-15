@@ -1,0 +1,2 @@
+mov rax,2
+mul rax, 5

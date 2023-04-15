@@ -1,0 +1,6 @@
+mov rax, 5
+cmp rax, 4
+jne label
+mov rax, 10
+label:
+mov rax, 11

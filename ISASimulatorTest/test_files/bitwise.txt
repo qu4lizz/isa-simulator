@@ -1,0 +1,8 @@
+mov rax, 4
+mov rbx, 6
+mov rcx, 8
+mov rdx, 10
+not rax
+not rax
+and rax,rbx
+or rax,rcx

@@ -109,8 +109,11 @@ namespace ISASimulator
             Operations.GetUnaryOperations().Add("SCAN", Operations.Scan);
             Operations.GetBinaryOperations().Add("ADD", Operations.Add);
             Operations.GetBinaryOperations().Add("SUB", Operations.Sub);
+            Operations.GetBinaryOperations().Add("MUL", Operations.Mul);
+            Operations.GetBinaryOperations().Add("DIV", Operations.Div);
             Operations.GetBinaryOperations().Add("AND", Operations.And);
             Operations.GetBinaryOperations().Add("OR", Operations.Or);
+            Operations.GetBinaryOperations().Add("XOR", Operations.Xor);
             Operations.GetBinaryOperations().Add("MOV", Operations.Mov);
             Operations.GetBinaryOperations().Add("CMP", Operations.Cmp);
             keywords.UnionWith(Operations.GetUnaryOperations().Keys);
@@ -176,9 +179,7 @@ namespace ISASimulator
                     Debug.StartDebug();
                 }
             }
-        }
-
-        
+        }        
 
         public static void Execute(string[] codeToRun)
         {

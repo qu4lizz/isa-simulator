@@ -1,0 +1,5 @@
+mov rax,1
+jmp label
+mov rbx,2
+label:
+mov rbx,3

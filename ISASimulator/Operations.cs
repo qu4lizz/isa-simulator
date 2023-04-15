@@ -88,6 +88,16 @@ namespace ISASimulator {
             PutValue(arg1, result);
         }
 
+        public static void Mul(string arg1, string arg2) {
+            long result = GetValue(arg1) * GetValue(arg2);
+            PutValue(arg1, result);
+        }
+
+        public static void Div(string arg1, string arg2) {
+            long result = GetValue(arg1) / GetValue(arg2);
+            PutValue(arg1, result);
+        }
+
         public static void And(string arg1, string arg2) {
             long result = GetValue(arg1) & GetValue(arg2);
             PutValue(arg1, result);
@@ -98,12 +108,15 @@ namespace ISASimulator {
             PutValue(arg1, result);
         }
 
+        public static void Xor(string arg1, string arg2) {
+            long result = GetValue(arg1) ^ GetValue(arg2);
+            PutValue(arg1, result);
+        }
+
         public static void Mov(string arg1, string arg2) {
             PutValue(arg1, GetValue(arg2));
         }
 
-        //Check if input is a number, if true store it
-        //if false, it is a string, store it as string
         public static void Scan(string arg) {
             arg = arg.ToUpper();
             string input = Console.ReadLine();

@@ -51,7 +51,7 @@ namespace ISASimulator {
                 ISASimulator.GetAddresses().Add(address++, (byte)0);
             }
 
-            ISASimulator.GetRegisters().Add("RIP", machineCodeAddresses[0]);
+            ISASimulator.GetRegisters()["RIP"] = machineCodeAddresses[0];
         }
 
         private static byte GetKeyForValue(string value)

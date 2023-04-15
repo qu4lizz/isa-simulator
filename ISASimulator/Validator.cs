@@ -6,7 +6,6 @@ namespace ISASimulator
     {
         public static void Validate()
         {
-            // Syntax analysis
             for (int i = 0; i < ISASimulator.GetCode().Count; i++)
             {
                 string line = ISASimulator.GetCode()[i].Trim();
@@ -34,10 +33,6 @@ namespace ISASimulator
             if (!ISASimulator.IsValid())
                 return;
 
-            // Semantic analysis
-            // Check for number of operands
-            // Check for validity of operands
-            // Check if a number is the first operand
             ISASimulator.GetCode().ForEach(s =>
             {
                 s = s.Trim();

@@ -1,0 +1,2 @@
+mov rax,15
+sub rax, 5

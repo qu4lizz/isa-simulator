@@ -1,0 +1,3 @@
+scan [rax]
+print [rax]
+print 15

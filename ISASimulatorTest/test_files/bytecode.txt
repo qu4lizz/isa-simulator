@@ -1,0 +1,3 @@
+mov rax, 5
+switch
+mov rax,17
