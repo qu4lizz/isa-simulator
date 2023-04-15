@@ -1,5 +1,8 @@
 
 
+using System;
+using System.Collections.Generic;
+
 namespace ISASimulator {
     public class Operations {
         // Map of unary operators

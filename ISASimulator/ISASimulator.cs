@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace ISASimulator
@@ -8,7 +9,6 @@ namespace ISASimulator
     {
         //Index for the interpretation of the code
         private static int interpretationIndex = 0;
-
 
         //Registers
         private static readonly Dictionary<string, long?> registers = new();
@@ -19,10 +19,6 @@ namespace ISASimulator
         private static readonly Dictionary<string, int> labels = new();
         private static List<string> code;
         private static readonly List<string> errorList = new();
-
-        public const string Breakpoint = "BREAKPOINT";
-        public const string Next = "NEXT";
-        public const string Continue = "CONTINUE";
 
         private static bool isDebuggingMode = false;
         private static bool isValid = true;
@@ -80,6 +76,16 @@ namespace ISASimulator
             return isValid;
         }
 
+        public static void SetValid(bool v) 
+        {
+            isValid = v;
+        }
+
+        public static List<string> GetErrorList() 
+        {
+            return errorList;
+        }
+
         public static void InitRegisters()
         {
             registers.Add("RAX", (long)0);
@@ -109,7 +115,7 @@ namespace ISASimulator
             Operations.GetBinaryOperations().Add("CMP", Operations.Cmp);
             keywords.UnionWith(Operations.GetUnaryOperations().Keys);
             keywords.UnionWith(Operations.GetBinaryOperations().Keys);
-            keywords.Add(Breakpoint);
+            keywords.Add(Debug.Breakpoint);
             keywords.Add(SwitchToMachineCodeExecution);
         }
 
@@ -122,107 +128,6 @@ namespace ISASimulator
             }
         }
 
-
-
-        public static void CodeValidation()
-        {
-            // Syntax analysis
-            for (int i = 0; i < code.Count; i++)
-            {
-                string line = code[i].Trim();
-                int index = line.IndexOf(' ');
-                if (index == -1 && Breakpoint.Equals(line.ToUpper())) // Breakpoint
-                    continue;
-                if (index == -1 && !keywords.Contains(line.ToUpper()) && !line.EndsWith(":")) // Invalid keyword
-                {
-                    errorList.Add(line);
-                    isValid = false;
-                }
-                else if (index == -1 && line.EndsWith(":")) // Label 
-                    labels[line.Substring(0, line.Length - 1)] = i;
-                else
-                {
-                    string keyword = line.Split(' ')[0];
-                    if (!keywords.Contains(keyword.ToUpper()))
-                    {
-                        errorList.Add(keyword);
-                        isValid = false;
-                    }
-                }
-            }
-
-            if (!isValid)
-                return;
-
-            // Semantic analysis
-            // Check for number of operands
-            // Check for validity of operands
-            // Check if a number is the first operand
-            code.ForEach(s =>
-            {
-                s = s.Trim();
-                int index = s.IndexOf(' ');
-                if (index == -1)
-                    return;
-                string keyword = s.Split(' ')[0].ToUpper();
-                string[] operands = s.Substring(index + 1).Replace(" ", "").Split(',');
-                if (Operations.GetUnaryOperations().ContainsKey(keyword) && operands.Length != 1)
-                {
-                    isValid = false;
-                    errorList.Add(s);
-                }
-                else if (Operations.GetBinaryOperations().ContainsKey(keyword) && operands.Length != 2)
-                {
-                    isValid = false;
-                    errorList.Add(s);
-                }
-
-                if (Operations.IsNumber(operands[0]) && !"PRINT".Equals(keyword) && !"CMP".Equals(keyword))
-                {
-                    isValid = false;
-                    errorList.Add(operands[0]);
-                }
-
-                Array.ForEach(operands, o =>
-                {
-                    string oprnd = o.ToUpper();
-                    if (!oprnd.StartsWith("[") && !registers.ContainsKey(oprnd) && !Operations.IsNumber(oprnd) && !labels.ContainsKey(o))
-                    {
-                        isValid = false;
-                        errorList.Add(o);
-                    }
-                    else if (Operations.IsNumber(oprnd))
-                    {
-                        if (!oprnd.StartsWith("0X"))
-                            addresses[long.Parse(oprnd)] = 0;
-                        else
-                            addresses[long.Parse(oprnd.Substring(2), System.Globalization.NumberStyles.HexNumber)] = 0;
-                    }
-                    else if (oprnd.StartsWith("["))
-                    {
-                        if (!oprnd.EndsWith("]"))
-                        {
-                            isValid = false;
-                            errorList.Add(o);
-                            return;
-                        }
-                        string address = oprnd.Substring(1, oprnd.Length - 2);
-                        if (registers.ContainsKey(address))
-                            return;
-                        if (!Operations.IsNumber(address))
-                        {
-                            isValid = false;
-                            errorList.Add(address);
-                        }
-                        else if (!address.StartsWith("0X"))
-                            addresses[long.Parse(address)] = 0;
-                        else
-                            addresses[long.Parse(address.Substring(2), System.Globalization.NumberStyles.HexNumber)] = 0;
-                    }
-                });
-            });
-        }
-
         public static void InterpretCode()
         {
             for (int i = 0; i < code.Count; i++)
@@ -232,10 +137,10 @@ namespace ISASimulator
                 int index = line.IndexOf(' ');
                 if (index == -1)
                 {
-                    if (Breakpoint.Equals(line.ToUpper()))
+                    if (Debug.Breakpoint.Equals(line.ToUpper()))
                     {
                         isDebuggingMode = true;
-                        Debug();
+                        Debug.StartDebug();
                         continue;
                     }
                     else if (SwitchToMachineCodeExecution.Equals(line.ToUpper()))
@@ -268,52 +173,12 @@ namespace ISASimulator
 
                 if (isDebuggingMode)
                 {
-                    Debug();
+                    Debug.StartDebug();
                 }
             }
         }
 
-        public static void Debug()
-        {
-            Console.WriteLine();
-            foreach (var reg in registers)
-            {
-                Console.WriteLine(reg.Key + " " + reg.Value);
-            }
-
-            Console.WriteLine("Enter memory address for examination or NEXT or CONTINUE:");
-            string input = "";
-            do
-            {
-                input = Console.ReadLine();
-                if (Operations.IsNumber(input))
-                {
-                    if (input.StartsWith("0x") || input.StartsWith("0X"))
-                    {
-                        long address = long.Parse(input.Substring(2), System.Globalization.NumberStyles.HexNumber);
-                        Console.WriteLine(input + ": " + (addresses.ContainsKey(address) ? addresses[address] : 0));
-                    }
-                    else
-                    {
-                        long address = long.Parse(input);
-                        Console.WriteLine(input + ": " + (addresses.ContainsKey(address) ? addresses[address] : 0));
-                    }
-                }
-                else if (Next.Equals(input.ToUpper()))
-                {
-                    return;
-                }
-                else if (Continue.Equals(input.ToUpper()))
-                {
-                    isDebuggingMode = false;
-                    return;
-                }
-                else
-                {
-                    Console.Error.WriteLine("Invalid command or memory address!");
-                }
-            } while (true);
-        }
+        
 
         public static void Execute(string[] codeToRun)
         {
@@ -323,11 +188,11 @@ namespace ISASimulator
 
             code = new List<string>(codeToRun);
 
-            CodeValidation();
+            Validator.Validate();
 
             if (!isValid)
             {
-                Console.Error.WriteLine("Code not valid.");
+                Console.Error.WriteLine("Invalid code!");
                 Console.Error.WriteLine("Errors:");
                 errorList.ForEach(s => Console.Error.WriteLine(s));
                 return;
@@ -341,7 +206,7 @@ namespace ISASimulator
         {
             if (args.Length == 0)
             {
-                Console.Error.WriteLine("Missing an argument.");
+                Console.Error.WriteLine("No input file specified!");
                 return;
             }
             try
