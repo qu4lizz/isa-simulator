@@ -83,34 +83,34 @@ namespace ISASimulator
 
         public static void InitRegisters()
         {
-            registers.Add("RAX", (long)0);
-            registers.Add("RBX", (long)0);
-            registers.Add("RCX", (long)0);
-            registers.Add("RDX", (long)0);
-            registers.Add("RSI", (long)0);
-            registers.Add("RDI", (long)0);
-            registers.Add("RIP", (long)0);
+            registers["RAX"] = 0;
+            registers["RBX"] = 0;
+            registers["RCX"] = 0;
+            registers["RDX"] = 0;
+            registers["RSI"] = 0;
+            registers["RDI"] = 0;
+            registers["RIP"] = 0;
         }
 
         public static void InitKeywordsAndOperations()
         {
-            Operations.GetUnaryOperations().Add("NOT", Operations.Not);
-            Operations.GetUnaryOperations().Add("JMP", Operations.Jump);
-            Operations.GetUnaryOperations().Add("JE", Operations.JumpEqual);
-            Operations.GetUnaryOperations().Add("JNE", Operations.JumpNotEqual);
-            Operations.GetUnaryOperations().Add("JGE", Operations.JumpGreaterEqual);
-            Operations.GetUnaryOperations().Add("JL", Operations.JumpLess);
-            Operations.GetUnaryOperations().Add("PRINT", Operations.Print);
-            Operations.GetUnaryOperations().Add("SCAN", Operations.Scan);
-            Operations.GetBinaryOperations().Add("ADD", Operations.Add);
-            Operations.GetBinaryOperations().Add("SUB", Operations.Sub);
-            Operations.GetBinaryOperations().Add("MUL", Operations.Mul);
-            Operations.GetBinaryOperations().Add("DIV", Operations.Div);
-            Operations.GetBinaryOperations().Add("AND", Operations.And);
-            Operations.GetBinaryOperations().Add("OR", Operations.Or);
-            Operations.GetBinaryOperations().Add("XOR", Operations.Xor);
-            Operations.GetBinaryOperations().Add("MOV", Operations.Mov);
-            Operations.GetBinaryOperations().Add("CMP", Operations.Cmp);
+            Operations.GetUnaryOperations()["NOT"] = Operations.Not;
+            Operations.GetUnaryOperations()["JMP"] = Operations.Jump;
+            Operations.GetUnaryOperations()["JE"] = Operations.JumpEqual;
+            Operations.GetUnaryOperations()["JNE"] = Operations.JumpNotEqual;
+            Operations.GetUnaryOperations()["JGE"] = Operations.JumpGreaterEqual;
+            Operations.GetUnaryOperations()["JL"] = Operations.JumpLess;
+            Operations.GetUnaryOperations()["PRINT"] = Operations.Print;
+            Operations.GetUnaryOperations()["SCAN"] = Operations.Scan;
+            Operations.GetBinaryOperations()["ADD"] = Operations.Add;
+            Operations.GetBinaryOperations()["SUB"] = Operations.Sub;
+            Operations.GetBinaryOperations()["MUL"] = Operations.Mul;
+            Operations.GetBinaryOperations()["DIV"] = Operations.Div;
+            Operations.GetBinaryOperations()["AND"] = Operations.And;
+            Operations.GetBinaryOperations()["OR"] = Operations.Or;
+            Operations.GetBinaryOperations()["XOR"] = Operations.Xor;
+            Operations.GetBinaryOperations()["MOV"] = Operations.Mov;
+            Operations.GetBinaryOperations()["CMP"] = Operations.Cmp;
             keywords.UnionWith(Operations.GetUnaryOperations().Keys);
             keywords.UnionWith(Operations.GetBinaryOperations().Keys);
             keywords.Add(Debug.Breakpoint);
@@ -122,7 +122,7 @@ namespace ISASimulator
             byte i = 0;
             foreach (string keyword in keywords)
             {
-                Bytecode.GetOpCodes().Add(i++, keyword);
+                Bytecode.GetOpCodes()[i++] = keyword;
             }
         }
 
