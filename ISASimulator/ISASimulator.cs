@@ -92,7 +92,7 @@ namespace ISASimulator
             registers["RIP"] = 0;
         }
 
-        public static void InitKeywordsAndOperations()
+        public static void InitOperations()
         {
             Operations.GetUnaryOperations()["NOT"] = Operations.Not;
             Operations.GetUnaryOperations()["JMP"] = Operations.Jump;
@@ -111,6 +111,9 @@ namespace ISASimulator
             Operations.GetBinaryOperations()["XOR"] = Operations.Xor;
             Operations.GetBinaryOperations()["MOV"] = Operations.Mov;
             Operations.GetBinaryOperations()["CMP"] = Operations.Cmp;
+        }
+
+        public static void InitKeywords() {
             keywords.UnionWith(Operations.GetUnaryOperations().Keys);
             keywords.UnionWith(Operations.GetBinaryOperations().Keys);
             keywords.Add(Debug.Breakpoint);
@@ -130,7 +133,8 @@ namespace ISASimulator
         public static void Execute(string[] codeToRun)
         {
             InitRegisters();
-            InitKeywordsAndOperations();
+            InitOperations();
+            InitKeywords();
             InitOpCodes();
 
             code = new List<string>(codeToRun);
@@ -145,7 +149,7 @@ namespace ISASimulator
                 return;
             }
 
-            Bytecode.TranslateToMachineCode(0x100);
+            Bytecode.Translate(0x100);
             Interpreter.Interpret();
         }
 
@@ -158,7 +162,8 @@ namespace ISASimulator
             }
             try
             {
-                Execute(File.ReadAllLines(args[0]));
+                string[] lines = File.ReadAllLines(args[0]);
+                Execute(lines);
             }
             catch (IOException e)
             {

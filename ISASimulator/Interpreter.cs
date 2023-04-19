@@ -21,7 +21,7 @@ namespace ISASimulator {
                     {
                         i++;
                         ISASimulator.GetRegisters()["RIP"] = Bytecode.GetMachineCodeAddresses()[i];
-                        Bytecode.MachineCodeExec();
+                        Bytecode.Execute();
                         continue;
                     }
                     else

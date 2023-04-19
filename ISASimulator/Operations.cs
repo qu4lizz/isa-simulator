@@ -152,7 +152,7 @@ namespace ISASimulator {
             if (!arg.StartsWith("["))
             {
                 if (ISASimulator.GetRegisters().ContainsKey(arg))
-                    result = (long)ISASimulator.GetRegisters()[arg];
+                    result = ISASimulator.GetRegisters()[arg] ?? -1;
                 else if (arg.StartsWith("0X"))
                     result = long.Parse(arg.Substring(2), System.Globalization.NumberStyles.HexNumber);
                 else
@@ -162,7 +162,7 @@ namespace ISASimulator {
             {
                 arg = arg.Substring(1, arg.Length - 2);
                 if (ISASimulator.GetRegisters().ContainsKey(arg))
-                    result = ISASimulator.GetAddresses()[(long)ISASimulator.GetRegisters()[arg]];
+                    result = ISASimulator.GetAddresses()[ISASimulator.GetRegisters()[arg] ?? -1];
                 else if (arg.StartsWith("0X"))
                 {
                     long address = long.Parse(arg.Substring(2), System.Globalization.NumberStyles.HexNumber);

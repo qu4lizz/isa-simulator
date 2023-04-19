@@ -17,7 +17,7 @@ namespace ISASimulator {
             return opCodes;
         }
 
-        public static void TranslateToMachineCode(long address)
+        public static void Translate(long address)
         {
             foreach (string line in ISASimulator.GetCode())
             {
@@ -67,7 +67,7 @@ namespace ISASimulator {
             return default;
         }
 
-        public static void MachineCodeExec()
+        public static void Execute()
         {
             for (; ; ISASimulator.SetInterpretationIndex(ISASimulator.GetInterpretationIndex() + 1))
             {
