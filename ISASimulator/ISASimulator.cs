@@ -126,55 +126,6 @@ namespace ISASimulator
             }
         }
 
-        public static void InterpretCode()
-        {
-            for (int i = 0; i < code.Count; i++)
-            {
-                string line = code[i];
-                line = line.Trim();
-                int index = line.IndexOf(' ');
-                if (index == -1)
-                {
-                    if (Debug.Breakpoint.Equals(line.ToUpper()))
-                    {
-                        isDebuggingMode = true;
-                        Debug.StartDebug();
-                        continue;
-                    }
-                    else if (SwitchToMachineCodeExecution.Equals(line.ToUpper()))
-                    {
-                        i++;
-                        registers["RIP"] = Bytecode.GetMachineCodeAddresses()[i];
-                        Bytecode.MachineCodeExec();
-                        continue;
-                    }
-                    else
-                    {
-                        continue;
-                    }
-                }
-
-                string op = line.Split(' ')[0];
-                op = op.ToUpper();
-                string args1 = line.Substring(line.IndexOf(' '));
-                args1 = args1.Replace(" ", "");
-                string args = args1.ToUpper();
-                if (Operations.GetUnaryOperations().ContainsKey(op))
-                {
-                    Operations.GetUnaryOperations()[op].Invoke(args1);
-                }
-                else if (Operations.GetBinaryOperations().ContainsKey(op))
-                {
-                    string arg1 = args.Split(',')[0], arg2 = args.Split(',')[1];
-                    Operations.GetBinaryOperations()[op].Invoke(arg1, arg2);
-                }
-
-                if (isDebuggingMode)
-                {
-                    Debug.StartDebug();
-                }
-            }
-        }        
 
         public static void Execute(string[] codeToRun)
         {
@@ -195,7 +146,7 @@ namespace ISASimulator
             }
 
             Bytecode.TranslateToMachineCode(0x100);
-            InterpretCode();
+            Interpreter.Interpret();
         }
 
         public static void Main(string[] args)

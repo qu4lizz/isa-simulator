@@ -6,6 +6,15 @@ namespace ISASimulator
     {
         public static void Validate()
         {
+            LexicalAndSyntaxAnalysis();
+
+            if (!ISASimulator.IsValid())
+                return;
+
+            SemanticAnalysis();
+        }
+
+        private static void LexicalAndSyntaxAnalysis() {
             for (int i = 0; i < ISASimulator.GetCode().Count; i++)
             {
                 string line = ISASimulator.GetCode()[i].Trim();
@@ -29,10 +38,9 @@ namespace ISASimulator
                     }
                 }
             }
+        }
 
-            if (!ISASimulator.IsValid())
-                return;
-
+        private static void SemanticAnalysis() {
             ISASimulator.GetCode().ForEach(s =>
             {
                 s = s.Trim();
