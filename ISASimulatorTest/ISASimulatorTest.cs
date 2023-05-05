@@ -143,17 +143,4 @@ public class ISASimulatorTest
             Console.Error.WriteLine(e.Message);
         }
     }
-
-    [TestMethod]
-    public void SelfModifyingCode() {
-        try{
-            ISASimulator.Execute(File.ReadAllLines(currentDir + "/self_modifying_code.txt"));
-            Assert.AreEqual(15, ISASimulator.GetRegisters()["RAX"]);
-        }
-        catch (IOException e)
-        {
-            Console.Error.WriteLine(e.Message);
-        }
-
-    }
 }

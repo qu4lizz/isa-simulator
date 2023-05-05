@@ -15,28 +15,19 @@ namespace ISASimulator {
             }
 
             Console.WriteLine("Enter a number to get its value or enter " + Next + " to continue or enter " + Continue + " to continue without debugging");
-            string input = "";
-            do
+            while (true)
             {
-                input = Console.ReadLine();
+                string input = Console.ReadLine().Trim();
                 if (Operations.IsNumber(input))
                 {
-                    if (input.StartsWith("0x") || input.StartsWith("0X"))
-                    {
-                        long address = long.Parse(input.Substring(2), System.Globalization.NumberStyles.HexNumber);
-                        Console.WriteLine(input + ": " + (ISASimulator.GetAddresses().ContainsKey(address) ? ISASimulator.GetAddresses()[address] : 0));
-                    }
-                    else
-                    {
-                        long address = long.Parse(input);
-                        Console.WriteLine(input + ": " + (ISASimulator.GetAddresses().ContainsKey(address) ? ISASimulator.GetAddresses()[address] : 0));
-                    }
+                    long address = long.Parse(input.StartsWith("0x", StringComparison.OrdinalIgnoreCase) ? input.Substring(2) : input);
+                    Console.WriteLine($"{input}: {(ISASimulator.GetAddresses().ContainsKey(address) ? ISASimulator.GetAddresses()[address] : "0")}");
                 }
-                else if (Next.Equals(input.ToUpper()))
+                else if (input.Equals(Next, StringComparison.OrdinalIgnoreCase))
                 {
                     return;
                 }
-                else if (Continue.Equals(input.ToUpper()))
+                else if (input.Equals(Continue, StringComparison.OrdinalIgnoreCase))
                 {
                     ISASimulator.SetDebuggingMode(false);
                     return;
@@ -45,7 +36,7 @@ namespace ISASimulator {
                 {
                     Console.Error.WriteLine("Invalid input!");
                 }
-            } while (true);
+            }
         }
     }
 }

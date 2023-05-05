@@ -16,7 +16,7 @@ namespace ISASimulator
         private static List<string> code;
         private static readonly List<string> errorList = new();
 
-        private static bool isDebuggingMode = false;
+        private static bool debuggingMode = false;
         private static bool isValid = true;
 
         public const string SwitchToMachineCodeExecution = "SWITCH";
@@ -31,14 +31,14 @@ namespace ISASimulator
             interpretationIndex = index;
         }
 
+        public static List<String> GetCode()
+        {
+            return code;
+        }
+
         public static Dictionary<string, long?> GetRegisters()
         {
             return registers;
-        }
-
-        public static Dictionary<long, byte> GetAddresses()
-        {
-            return addresses;
         }
 
         public static Dictionary<string, int> GetLabels()
@@ -46,34 +46,34 @@ namespace ISASimulator
             return labels;
         }
 
+        public static Dictionary<long, byte> GetAddresses()
+        {
+            return addresses;
+        }
+
         public static HashSet<string> GetKeywords()
         {
             return keywords;
         }
 
-        public static List<String> GetCode()
+        public static void SetDebuggingMode(bool mode)
         {
-            return code;
+            debuggingMode = mode;
         }
 
         public static bool GetDebuggingMode()
         {
-            return isDebuggingMode;
-        }
-
-        public static void SetDebuggingMode(bool mode)
-        {
-            isDebuggingMode = mode;
-        }
-
-        public static bool IsValid()
-        {
-            return isValid;
+            return debuggingMode;
         }
 
         public static void SetValid(bool v) 
         {
             isValid = v;
+        }
+
+        public static bool IsValid()
+        {
+            return isValid;
         }
 
         public static List<string> GetErrorList() 
@@ -155,17 +155,22 @@ namespace ISASimulator
 
         public static void Main(string[] args)
         {
-            if (args.Length == 0)
-            {
-                Console.Error.WriteLine("No input file specified!");
-                return;
-            }
             try
             {
+                if (args.Length == 0)
+                {
+                    throw new ArgumentException("No file specified!");
+                }
+            
                 string[] lines = File.ReadAllLines(args[0]);
                 Execute(lines);
             }
             catch (IOException e)
+            {
+                Console.Error.WriteLine(e.Message);
+                return;
+            }
+            catch (ArgumentException e)
             {
                 Console.Error.WriteLine(e.Message);
                 return;

@@ -1,26 +1,64 @@
-
-
 using System;
 using System.Collections.Generic;
 
-namespace ISASimulator {
-    public class Operations {
+namespace ISASimulator
+{
+    public class Operations
+    {
         private static readonly Dictionary<string, Action<string>> UnaryOperations = new();
         private static readonly Dictionary<string, Action<string, string>> BinaryOperations = new();
-    
-        private static bool _equalResult, _lessResult;
 
-        public static Dictionary<string, Action<string>> GetUnaryOperations()
-        {
-            return UnaryOperations;
-        }
+        private static int equal, less;
 
         public static Dictionary<string, Action<string, string>> GetBinaryOperations()
         {
             return BinaryOperations;
         }
 
-        private static void Process(string label) {
+        public static Dictionary<string, Action<string>> GetUnaryOperations()
+        {
+            return UnaryOperations;
+        }
+        
+        public static void Jump(string label)
+        {
+            Process(label);
+        }
+
+        public static void JumpEqual(string label)
+        {
+            if (equal == 1)
+            {
+                Process(label);
+            }
+        }
+
+        public static void JumpNotEqual(string label)
+        {
+            if (equal == 0)
+            {
+                Process(label);
+            }
+        }
+
+        public static void JumpGreaterEqual(string label)
+        {
+            if (less == 0)
+            {
+                Process(label);
+            }
+        }
+
+        public static void JumpLess(string label)
+        {
+            if (less == 1)
+            {
+                Process(label);
+            }
+        }
+
+        private static void Process(string label)
+        {
             ISASimulator.SetInterpretationIndex(ISASimulator.GetLabels()[label]);
             if (ISASimulator.GetInterpretationIndex() < Bytecode.GetMachineCodeAddresses().Count)
             {
@@ -31,188 +69,186 @@ namespace ISASimulator {
                 ISASimulator.GetRegisters()["RIP"] = null;
             }
         }
-        public static void Jump(string label)
+
+        public static void Not(string val)
         {
-            Process(label);
+            SetRegisterValue(val.ToUpper(), ~GetRegisterValue(val.ToUpper()));
         }
 
-        public static void JumpEqual(string label)
+        public static void Add(string val1, string val2)
         {
-            if (_equalResult)
-            {
-                Process(label);
-            }
+            SetRegisterValue(val1, GetRegisterValue(val1) + GetRegisterValue(val2));
         }
 
-        public static void JumpNotEqual(string label)
+        public static void Sub(string val1, string val2)
         {
-            if (!_equalResult)
-            {
-                Process(label);
-            }
+            SetRegisterValue(val1, GetRegisterValue(val1) - GetRegisterValue(val2));
         }
 
-        public static void JumpGreaterEqual(string label)
+        public static void Mul(string val1, string val2)
         {
-            if (!_lessResult)
-            {
-                Process(label);
-            }
+            SetRegisterValue(val1, GetRegisterValue(val1) * GetRegisterValue(val2));
         }
 
-        public static void JumpLess(string label)
+        public static void Div(string val1, string val2)
         {
-            if (_lessResult)
-            {
-                Process(label);
-            }
+            SetRegisterValue(val1, GetRegisterValue(val1) / GetRegisterValue(val2));
         }
 
-        public static void Not(string arg)
+        public static void And(string val1, string val2)
         {
-            arg = arg.ToUpper();
-            PutValue(arg, ~GetValue(arg));
+            SetRegisterValue(val1, GetRegisterValue(val1) & GetRegisterValue(val2));
         }
 
-        public static void Add(string arg1, string arg2)
+        public static void Or(string val1, string val2)
         {
-            long result = GetValue(arg1) + GetValue(arg2);
-            PutValue(arg1, result);
+            SetRegisterValue(val1, GetRegisterValue(val1) | GetRegisterValue(val2));
         }
 
-        public static void Sub(string arg1, string arg2) {
-            long result = GetValue(arg1) - GetValue(arg2);
-            PutValue(arg1, result);
+        public static void Xor(string val1, string val2)
+        {
+            SetRegisterValue(val1, GetRegisterValue(val1) ^ GetRegisterValue(val2));
         }
 
-        public static void Mul(string arg1, string arg2) {
-            long result = GetValue(arg1) * GetValue(arg2);
-            PutValue(arg1, result);
+        public static void Mov(string val1, string val2)
+        {
+            SetRegisterValue(val1, GetRegisterValue(val2));
         }
 
-        public static void Div(string arg1, string arg2) {
-            long result = GetValue(arg1) / GetValue(arg2);
-            PutValue(arg1, result);
-        }
-
-        public static void And(string arg1, string arg2) {
-            long result = GetValue(arg1) & GetValue(arg2);
-            PutValue(arg1, result);
-        }
-
-        public static void Or(string arg1, string arg2) {
-            long result = GetValue(arg1) | GetValue(arg2);
-            PutValue(arg1, result);
-        }
-
-        public static void Xor(string arg1, string arg2) {
-            long result = GetValue(arg1) ^ GetValue(arg2);
-            PutValue(arg1, result);
-        }
-
-        public static void Mov(string arg1, string arg2) {
-            PutValue(arg1, GetValue(arg2));
-        }
-
-        public static void Scan(string arg) {
-            arg = arg.ToUpper();
+        public static void Scan(string val)
+        {
             string input = Console.ReadLine();
-            if (IsNumber(input)) {
-                long result = input.StartsWith("0x") || input.StartsWith("0X") ? Convert.ToInt64(input.Substring(2), 16) : Convert.ToInt64(input);
-                PutValue(arg, result);
-            }
-            else {
-                if (!arg.StartsWith("[")) {
-                    long result = 0;
-                    for (int i = 0; i < 8 && i < input.Length; i++) {
-                        result = result * 100 + (int)input[i];
-                    }
-                    PutValue(arg, result);
-                }
-                else {
-                    PutValue(arg, (int)input[0]);
-                }
-            }
-        }
-
-        public static void Print(string arg) {
-            arg = arg.ToUpper();
-            Console.WriteLine(GetValue(arg));
-        }
-
-        public static void Cmp(string arg1, string arg2) {
-            long num1 = GetValue(arg1), num2 = GetValue(arg2);
-            _equalResult = num1 == num2;
-            _lessResult = num1 < num2;
-        }
-
-        private static long GetValue(string arg)
-        {
-            long result = 0;
-            if (!arg.StartsWith("["))
+            val = val.ToUpper();
+            if (IsNumber(input))
             {
-                if (ISASimulator.GetRegisters().ContainsKey(arg))
-                    result = ISASimulator.GetRegisters()[arg] ?? -1;
-                else if (arg.StartsWith("0X"))
-                    result = long.Parse(arg.Substring(2), System.Globalization.NumberStyles.HexNumber);
-                else
-                    result = long.Parse(arg);
+                SetRegisterValue(val, GetNumberFromString(input));
             }
             else
             {
-                arg = arg.Substring(1, arg.Length - 2);
-                if (ISASimulator.GetRegisters().ContainsKey(arg))
-                    result = ISASimulator.GetAddresses()[ISASimulator.GetRegisters()[arg] ?? -1];
-                else if (arg.StartsWith("0X"))
+                if (!val.StartsWith("[")) 
                 {
-                    long address = long.Parse(arg.Substring(2), System.Globalization.NumberStyles.HexNumber);
-                    result = ISASimulator.GetAddresses()[address];
+                    SetRegisterValue(val, GetNumberFromInputString(input));
                 }
                 else
-                    result = ISASimulator.GetAddresses()[long.Parse(arg)];
+                {
+                    int result = (int)input[0];
+                    SetRegisterValue(val, result);
+                }
+            }
+        }
+
+        private static long GetNumberFromString(string input)
+        {
+            return input.StartsWith("0x") || input.StartsWith("0X") ? Convert.ToInt64(input.Substring(2), 16) : Convert.ToInt64(input);
+        }
+
+        private static long GetNumberFromInputString(string input)
+        {
+            long result = 0;
+            int length = Math.Min(8, input.Length);
+            for (int i = 0; i < length; i++)
+            {
+                result = result * 100 + (int)input[i];
             }
             return result;
         }
 
-        private static void PutValue(string arg, long result)
+        public static void Print(string val)
         {
-            if (!arg.StartsWith("["))
-                ISASimulator.GetRegisters()[arg] = result;
-            else
+            Console.WriteLine(GetRegisterValue(val.ToUpper()));
+        }
+
+        public static void Cmp(string val1, string val2)
+        {
+            long num1 = GetRegisterValue(val1);
+            long num2 = GetRegisterValue(val2);
+            
+            equal = num1 == num2 ? 1 : 0;
+            less = num1 < num2 ? 1 : 0;
+        }
+
+        private static long GetRegisterValue(string val)
+        {
+            bool isAddress = val.StartsWith("[");
+            val = isAddress ? val.Substring(1, val.Length - 2) : val;
+            bool isHex = val.StartsWith("0X");
+            val = isHex ? val.Substring(2) : val;
+            long result = 0;
+            
+            if (isAddress)
             {
-                arg = arg.Substring(1, arg.Length - 2);
-                if (ISASimulator.GetRegisters().ContainsKey(arg))
-                    ISASimulator.GetAddresses()[(long)ISASimulator.GetRegisters()[arg]] = (byte)result;
-                else if (arg.StartsWith("0X"))
+                if (IsNumber(val))
                 {
-                    long address = long.Parse(arg.Substring(2), System.Globalization.NumberStyles.HexNumber);
-                    ISASimulator.GetAddresses()[address] = (byte)result;
+                    result = long.Parse(val, isHex ? System.Globalization.NumberStyles.HexNumber : System.Globalization.NumberStyles.None);
                 }
                 else
-                    ISASimulator.GetAddresses()[long.Parse(arg)] = (byte)result;
+                {
+                    result = ISASimulator.GetRegisters()[val] ?? -1;
+                }
+            }
+            else
+            {
+                if (ISASimulator.GetRegisters().ContainsKey(val))
+                {
+                    result = ISASimulator.GetRegisters()[val] ?? -1;
+                }
+                else
+                {
+                    result = long.Parse(val, isHex ? System.Globalization.NumberStyles.HexNumber : System.Globalization.NumberStyles.None);
+                }
+            }
+
+            return result;
+        }
+
+        private static void SetRegisterValue(string val, long result)
+        {
+            long address = 0;
+            bool isAddress = false;
+
+            if (val.StartsWith("[") && val.EndsWith("]"))
+            {
+                val = val.Substring(1, val.Length - 2);
+                isAddress = true;
+            }
+
+            if (ISASimulator.GetRegisters().ContainsKey(val))
+            {
+                ISASimulator.GetRegisters()[val] = result;
+            }
+            else
+            {
+                if (val.StartsWith("0X") || val.StartsWith("0x"))
+                {
+                    if (long.TryParse(val.Substring(2), System.Globalization.NumberStyles.HexNumber, null, out address))
+                    {
+                        isAddress = true;
+                    }
+                }
+                else
+                {
+                    if (long.TryParse(val, out address))
+                    {
+                        isAddress = true;
+                    }
+                }
+                if (isAddress)
+                {
+                    ISASimulator.GetAddresses()[address] = (byte)result;
+                }
             }
         }
 
         public static bool IsNumber(string s)
         {
-            try
-            {
-                long.Parse(s);
+            bool isHex = s.StartsWith("0x") || s.StartsWith("0X");
+            if (isHex)
+                s = s.Substring(2);
+            if (long.TryParse(s, out long result))
                 return true;
-            }
-            catch (FormatException)
-            {
-                try
-                {
-                    s = s.Substring(2);
-                    long.Parse(s, System.Globalization.NumberStyles.HexNumber);
-                    return true;
-                }
-                catch (FormatException)
-                {
-                    return false;
-                }
-            }
+            if (isHex && long.TryParse(s, System.Globalization.NumberStyles.HexNumber, null, out result))
+                return true;
+            return false;
         }
     }
 }

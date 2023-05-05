@@ -41,32 +41,30 @@ namespace ISASimulator
         }
 
         private static void SemanticAnalysis() {
-            ISASimulator.GetCode().ForEach(s =>
+            foreach (string str in ISASimulator.GetCode())
             {
-                s = s.Trim();
-                int index = s.IndexOf(' ');
-                if (index == -1)
+                string line = str.Trim();
+                int index;
+                if ((index = line.IndexOf(' ')) == -1)
                     return;
-                string keyword = s.Split(' ')[0].ToUpper();
-                string[] operands = s.Substring(index + 1).Replace(" ", "").Split(',');
-                if (Operations.GetUnaryOperations().ContainsKey(keyword) && operands.Length != 1)
+                string keyword = line.Split(' ')[0].ToUpper();
+                string[] operands = line.Substring(index + 1).Replace(" ", "").Split(',');
+                if ((Operations.GetUnaryOperations().ContainsKey(keyword) && operands.Length != 1) ||
+                    (Operations.GetBinaryOperations().ContainsKey(keyword) && operands.Length != 2))
                 {
                     ISASimulator.SetValid(false);
-                    ISASimulator.GetErrorList().Add(s);
-                }
-                else if (Operations.GetBinaryOperations().ContainsKey(keyword) && operands.Length != 2)
-                {
-                    ISASimulator.SetValid(false);
-                    ISASimulator.GetErrorList().Add(s);
+                    ISASimulator.GetErrorList().Add(line);
+                    continue;
                 }
 
                 if (Operations.IsNumber(operands[0]) && !"PRINT".Equals(keyword) && !"CMP".Equals(keyword))
                 {
                     ISASimulator.SetValid(false);
                     ISASimulator.GetErrorList().Add(operands[0]);
+                    continue;
                 }
 
-                Array.ForEach(operands, o =>
+                foreach (string o in operands)
                 {
                     string oprnd = o.ToUpper();
                     if (!oprnd.StartsWith("[") && !ISASimulator.GetRegisters().ContainsKey(oprnd) && !Operations.IsNumber(oprnd) && !ISASimulator.GetLabels().ContainsKey(o))
@@ -102,8 +100,8 @@ namespace ISASimulator
                         else
                             ISASimulator.GetAddresses()[long.Parse(address.Substring(2), System.Globalization.NumberStyles.HexNumber)] = 0;
                     }
-                });
-            });
+                };
+            };
         }
     }
 }

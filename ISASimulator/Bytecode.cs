@@ -19,31 +19,32 @@ namespace ISASimulator {
 
         public static void Translate(long address)
         {
-            foreach (string line in ISASimulator.GetCode())
+            var code = ISASimulator.GetCode();
+            
+            for (int i = 0; i < code.Count; i++)
             {
-                string trimmedLine = line.Trim();
-                int index = trimmedLine.IndexOf(' ');
+                var trimmedLine = code[i].Trim();
+                var index = trimmedLine.IndexOf(' ');
 
-                if (index == -1 && ISASimulator.GetKeywords().Contains(trimmedLine.ToUpper()))
+                if (index == -1)
                 {
-                    ISASimulator.GetAddresses().Add(address, GetKeyForValue(trimmedLine.ToUpper()));
-                    machineCodeAddresses.Add(address++);
+                    string instruction = trimmedLine.ToUpper();
+                    bool contains = ISASimulator.GetKeywords().Contains(instruction);
+                    if (contains)
+                    {
+                        ISASimulator.GetAddresses().Add(address, FindKey(instruction));
+                        machineCodeAddresses.Add(address++);
+                    }
                     continue;
                 }
-                else if (index == -1 && !ISASimulator.GetKeywords().Contains(trimmedLine.ToUpper()))
-                {
-                    continue;
-                }
-                else if (index != -1)
-                {
-                    ISASimulator.GetAddresses().Add(address++, GetKeyForValue(trimmedLine.Split(" ")[0].ToUpper()));
-                }
 
-                string remainingLine = trimmedLine.Substring(index + 1);
-                byte[] arr = Encoding.ASCII.GetBytes(remainingLine.Replace(" ", ""));
+                ISASimulator.GetAddresses().Add(address++, FindKey(trimmedLine.Split(" ")[0].ToUpper()));
+
+                var remainingLine = trimmedLine.Substring(index + 1);
+                var arr = Encoding.ASCII.GetBytes(remainingLine.Replace(" ", ""));
                 machineCodeAddresses.Add(address - 1);
 
-                foreach (byte b in arr)
+                foreach (var b in arr)
                 {
                     ISASimulator.GetAddresses().Add(address++, b);
                 }
@@ -54,57 +55,44 @@ namespace ISASimulator {
             ISASimulator.GetRegisters()["RIP"] = machineCodeAddresses[0];
         }
 
-        private static byte GetKeyForValue(string value)
-        {
-            foreach (KeyValuePair<byte, string> entry in opCodes)
-            {
-                if (entry.Value.Equals(value))
-                {
-                    return entry.Key;
-                }
-            }
-
-            return default;
-        }
-
         public static void Execute()
         {
-            for (; ; ISASimulator.SetInterpretationIndex(ISASimulator.GetInterpretationIndex() + 1))
+            while (true)
             {
-                if (!ISASimulator.GetAddresses().ContainsKey(ISASimulator.GetRegisters()["RIP"] ?? -1))
+                long rip = ISASimulator.GetRegisters()["RIP"] ?? -1;
+                if (!ISASimulator.GetAddresses().ContainsKey(rip))
                 {
                     return;
                 }
 
-                long address = ISASimulator.GetRegisters()["RIP"] ?? -1;
-
-                string instruction = opCodes[ISASimulator.GetAddresses()[address++]];
-
-                StringBuilder sb = new StringBuilder();
-
-                if (!Debug.Breakpoint.Equals(instruction))
-                {
-                    while (ISASimulator.GetAddresses()[address] != 0)
-                    {
-                        sb.Append((char)(int)ISASimulator.GetAddresses()[address++]);
-                    }
-                }
-
-                ISASimulator.GetRegisters()["RIP"] = address + 1;
-                string operands = sb.ToString();
+                byte opcode = ISASimulator.GetAddresses()[rip++];
+                string instruction = opCodes[opcode];
 
                 if (Debug.Breakpoint.Equals(instruction))
                 {
                     ISASimulator.SetDebuggingMode(true);
                     Debug.StartDebug();
-                    ISASimulator.GetRegisters()["RIP"] = address;
+                    ISASimulator.GetRegisters()["RIP"] = rip - 1;
                     continue;
                 }
                 else if (ISASimulator.SwitchToMachineCodeExecution.Equals(instruction))
                 {
                     return;
                 }
-                else if (Operations.GetUnaryOperations().ContainsKey(instruction))
+
+                StringBuilder sb = new StringBuilder();
+                while (true)
+                {
+                    byte ch = ISASimulator.GetAddresses()[rip++];
+                    if (ch == 0)
+                    {
+                        break;
+                    }
+                    sb.Append((char)ch);
+                }
+                string operands = sb.ToString();
+
+                if (Operations.GetUnaryOperations().ContainsKey(instruction))
                 {
                     Operations.GetUnaryOperations()[instruction].Invoke(operands);
                 }
@@ -116,11 +104,18 @@ namespace ISASimulator {
                         operandsArray[1].ToUpper()
                     );
                 }
+
+                ISASimulator.GetRegisters()["RIP"] = rip;
                 if (ISASimulator.GetDebuggingMode())
                 {
                     Debug.StartDebug();
                 }
             }
+        }
+
+        private static byte FindKey(string value)
+        {
+            return opCodes.FirstOrDefault(x => x.Value.Equals(value)).Key;
         }
     }
 }

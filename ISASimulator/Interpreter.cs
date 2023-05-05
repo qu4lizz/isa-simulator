@@ -6,8 +6,7 @@ namespace ISASimulator {
         {
             for (int i = 0; i < ISASimulator.GetCode().Count; i++)
             {
-                string line = ISASimulator.GetCode()[i];
-                line = line.Trim();
+                string line = ISASimulator.GetCode()[i].Trim();
                 int index = line.IndexOf(' ');
                 if (index == -1)
                 {
@@ -30,19 +29,17 @@ namespace ISASimulator {
                     }
                 }
 
-                string op = line.Split(' ')[0];
-                op = op.ToUpper();
-                string args1 = line.Substring(line.IndexOf(' '));
-                args1 = args1.Replace(" ", "");
-                string args = args1.ToUpper();
+                string op = line.Split(' ')[0].ToUpper();
+                string arg = line.Substring(line.IndexOf(' ')).Replace(" ", "");
+                string args = arg.ToUpper();
                 if (Operations.GetUnaryOperations().ContainsKey(op))
                 {
-                    Operations.GetUnaryOperations()[op].Invoke(args1);
+                    Operations.GetUnaryOperations()[op].Invoke(arg);
                 }
                 else if (Operations.GetBinaryOperations().ContainsKey(op))
                 {
-                    string arg1 = args.Split(',')[0], arg2 = args.Split(',')[1];
-                    Operations.GetBinaryOperations()[op].Invoke(arg1, arg2);
+                    string[] argsArray = args.Split(",");
+                    Operations.GetBinaryOperations()[op].Invoke(argsArray[0], argsArray[1]);
                 }
 
                 if (ISASimulator.GetDebuggingMode())
